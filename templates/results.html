@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting Results</title>
+</head>
+<body>
+    <h1>Voting Results</h1>
+    <ul id="resultsList"></ul>
+    <a href="/dashboard">Go to Dashboard</a>
+    <script>
+        async function fetchResults() {
+            const response = await fetch('/results');
+            const results = await response.json();
+            const resultsList = document.get ElementById('resultsList');
+            results.forEach(block => {
+                const li = document.createElement('li');
+                li.textContent = `Vote: ${block.Vote}, Hash: ${block.Hash}`;
+                resultsList.appendChild(li);
+            });
+        }
+        fetchResults();
+    </script>
+</body>
+</html>
