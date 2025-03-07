@@ -1,26 +1,262 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Voting Results</title>
-</head>
-<body>
-    <h1>Voting Results</h1>
-    <ul id="resultsList"></ul>
-    <a href="/dashboard">Go to Dashboard</a>
-    <script>
-        async function fetchResults() {
-            const response = await fetch('/results');
-            const results = await response.json();
-            const resultsList = document.get ElementById('resultsList');
-            results.forEach(block => {
-                const li = document.createElement('li');
-                li.textContent = `Vote: ${block.Vote}, Hash: ${block.Hash}`;
-                resultsList.appendChild(li);
-            });
+    <style>
+      :root {
+        --primary-color: #4285f4;
+        --primary-dark: #3367d6;
+        --secondary-color: #34a853;
+        --background-color: #f9f9f9;
+        --card-bg: #ffffff;
+        --text-color: #333333;
+      }
+
+      body {
+        font-family: "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+          sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .container {
+        width: 90%;
+        max-width: 800px;
+        padding: 2rem;
+        margin: 2rem auto;
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      header {
+        width: 100%;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 1rem 0;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      nav {
+        display: flex;
+        justify-content: center;
+        padding: 0.5rem;
+        background-color: white;
+        border-bottom: 1px solid #eaeaea;
+        width: 100%;
+      }
+
+      nav a {
+        margin: 0 1rem;
+        text-decoration: none;
+        color: var(--primary-color);
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+
+      nav a:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+      }
+
+      h1,
+      h2 {
+        color: var(--primary-color);
+      }
+
+      .results-list {
+        padding: 0;
+        max-height: 500px;
+        overflow-y: auto;
+        border: 1px solid #eaeaea;
+        border-radius: 4px;
+        margin: 1rem 0;
+      }
+
+      .result-item {
+        padding: 1rem;
+        border-bottom: 1px solid #eaeaea;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .result-item:last-child {
+        border-bottom: none;
+      }
+
+      .result-item .vote {
+        font-weight: 600;
+        color: var(--primary-color);
+      }
+
+      .result-item .hash {
+        color: #666;
+        font-size: 0.85rem;
+        font-family: monospace;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 350px;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+      }
+
+      .btn {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 1rem;
+        transition: background-color 0.3s;
+      }
+
+      .btn:hover {
+        background-color: var(--primary-dark);
+      }
+
+      .actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+      }
+
+      footer {
+        margin-top: auto;
+        width: 100%;
+        background-color: var(--primary-color);
+        color: white;
+        text-align: center;
+        padding: 1rem 0;
+      }
+
+      .verification-info {
+        background-color: rgba(66, 133, 244, 0.1);
+        border: 1px solid var(--primary-color);
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 2rem;
+      }
+
+      @media (max-width: 768px) {
+        .result-item {
+          flex-direction: column;
+          align-items: flex-start;
         }
-        fetchResults();
+        .result-item .hash {
+          margin-top: 0.5rem;
+          max-width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Secure Blockchain Voting System</h1>
+    </header>
+
+    <nav>
+      <a href="/">Vote</a>
+      <a href="/results">Results</a>
+      <a href="/dashboard">Dashboard</a>
+    </nav>
+
+    <div class="container">
+      <h2>Complete Voting Record</h2>
+
+      <div class="verification-info">
+        <p>
+          Each vote is securely recorded on our blockchain with a unique hash
+          identifier, ensuring vote integrity and verification.
+        </p>
+      </div>
+
+      <div id="loadingIndicator" class="loading">
+        <p>Loading voting data...</p>
+      </div>
+
+      <div id="resultsContainer" style="display: none">
+        <div id="emptyState" class="empty-state" style="display: none">
+          <p>No votes have been cast yet. Be the first to vote!</p>
+          <a href="/" class="btn">Cast Your Vote</a>
+        </div>
+
+        <ul id="resultsList" class="results-list"></ul>
+
+        <div class="actions">
+          <a href="/" class="btn">Cast Your Vote</a>
+          <a href="/dashboard" class="btn">View Dashboard</a>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>&copy; 2025 Secure Voting System</p>
+    </footer>
+
+    <script>
+      async function fetchResults() {
+        const loadingIndicator = document.getElementById("loadingIndicator");
+        const resultsContainer = document.getElementById("resultsContainer");
+        const emptyState = document.getElementById("emptyState");
+        const resultsList = document.getElementById("resultsList");
+
+        try {
+          const response = await fetch("/results");
+          const results = await response.json();
+
+          loadingIndicator.style.display = "none";
+          resultsContainer.style.display = "block";
+
+          if (results.length === 0) {
+            emptyState.style.display = "block";
+          } else {
+            results.forEach((block) => {
+              const li = document.createElement("li");
+              li.className = "result-item";
+
+              const voteSpan = document.createElement("span");
+              voteSpan.className = "vote";
+              voteSpan.textContent = `Vote: ${block.Vote}`;
+
+              const hashSpan = document.createElement("span");
+              hashSpan.className = "hash";
+              hashSpan.textContent = `Hash: ${block.Hash}`;
+
+              li.appendChild(voteSpan);
+              li.appendChild(hashSpan);
+              resultsList.appendChild(li);
+            });
+          }
+        } catch (error) {
+          loadingIndicator.innerHTML =
+            "<p>Error loading votes. Please try again later.</p>";
+          console.error("Error:", error);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", fetchResults);
     </script>
-</body>
+  </body>
 </html>

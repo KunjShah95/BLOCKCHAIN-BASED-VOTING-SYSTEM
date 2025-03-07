@@ -1,69 +1,513 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Voting Dashboard</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+      :root {
+        --primary-color: #4285f4;
+        --primary-dark: #3367d6;
+        --secondary-color: #34a853;
+        --background-color: #f9f9f9;
+        --card-bg: #ffffff;
+        --text-color: #333333;
+        --chart-colors: #4285f4, #ea4335, #fbbc05, #34a853, #8a2be2, #ff6347,
+          #20b2aa, #ff8c00, #9370db, #3cb371;
+      }
+
+      body {
+        font-family: "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+          sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .container {
+        width: 90%;
+        max-width: 1200px;
+        margin: 2rem auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+      }
+
+      header {
+        width: 100%;
+        background-color: rgba(22, 4, 4, 0.05);
+        color: white;
+        padding: 1rem 0;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      nav {
+        display: flex;
+        justify-content: center;
+        padding: 0.5rem;
+        background-color: white;
+        border-bottom: 1px solid #eaeaea;
+        width: 100%;
+      }
+
+      nav a {
+        margin: 0 1rem;
+        text-decoration: none;
+        color: var(--primary-color);
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+
+      nav a:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+      }
+
+      h1,
+      h2,
+      h3 {
+        color: var(--primary-color);
+      }
+
+      .dashboard-title {
+        grid-column: 1 / -1;
+        margin-bottom: 0;
+      }
+
+      .dashboard-subtitle {
+        grid-column: 1 / -1;
+        margin-top: 0;
+        color: #666;
+      }
+
+      .card {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card-full {
+        grid-column: 1 / -1;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card {
+        background-color: var(--card-bg);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        padding: 1rem;
+        text-align: center;
+        border-left: 4px solid var(--primary-color);
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        margin: 0.5rem 0;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .chart-container {
+        position: relative;
+        height: 300px;
+        margin-top: 1rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+      }
+
+      th,
+      td {
+        border: 1px solid #eaeaea;
+        padding: 0.75rem;
+        text-align: left;
+      }
+
+      th {
+        background-color: #f5f5f5;
+        font-weight: 600;
+      }
+
+      tr:nth-child(even) {
+        background-color: #fafafa;
+      }
+
+      tr:hover {
+        background-color: #f0f7ff;
+      }
+
+      .votes-column {
+        text-align: center;
+        font-weight: 600;
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #eaeaea;
+        padding-bottom: 0.5rem;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+      }
+
+      .btn {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.3s;
+      }
+
+      .btn:hover {
+        background-color: var(--primary-dark);
+      }
+
+      footer {
+        margin-top: auto;
+        width: 100%;
+        background-color: var(--primary-color);
+        color: white;
+        text-align: center;
+        padding: 1rem 0;
+      }
+
+      .vote-bar {
+        height: 20px;
+        background-color: var(--primary-color);
+        border-radius: 10px;
+        margin-top: 5px;
+      }
+
+      .percentage {
+        font-size: 0.85rem;
+        color: #666;
+        text-align: right;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          grid-template-columns: 1fr;
         }
-        table {
-            width: 50%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
+      }
+
+      /* Pie chart canvas styling */
+      #pieChart {
+        max-height: 300px;
+      }
+
+      .no-data {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+        color: #666;
+      }
     </style>
-</head>
-<body>
-    <h1>Voting Dashboard</h1>
-    <table>
-        <thead>
-            <tr>
+  </head>
+  <body>
+    <header>
+      <h1>Secure Blockchain Voting System</h1>
+    </header>
+
+    <nav>
+      <a href="/">Vote</a>
+      <a href="/results">Results</a>
+      <a href="/dashboard">Dashboard</a>
+    </nav>
+
+    <div class="container">
+      <h2 class="dashboard-title">Voting Results Dashboard</h2>
+      <p class="dashboard-subtitle">Real-time voting statistics and analysis</p>
+
+      <div class="card card-full">
+        <div class="card-header">
+          <h3>Voting Statistics</h3>
+          <button id="refreshBtn" class="btn">Refresh Data</button>
+        </div>
+
+        <div id="statsGrid" class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Votes Cast</div>
+            <div id="totalVotes" class="stat-value">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Unique Candidates</div>
+            <div id="uniqueCandidates" class="stat-value">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Leading Candidate</div>
+            <div id="leadingCandidate" class="stat-value">-</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Most Recent Vote</div>
+            <div id="recentVote" class="stat-value">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Votes Distribution</h3>
+        </div>
+        <div class="chart-container">
+          <canvas id="pieChart"></canvas>
+          <div id="pieChartNoData" class="no-data" style="display: none">
+            <p>No voting data available</p>
+            <a href="/" class="btn">Cast First Vote</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Vote Percentages</h3>
+        </div>
+        <div id="barChartContainer">
+          <div id="barChartNoData" class="no-data" style="display: none">
+            <p>No voting data available</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-full">
+        <div class="card-header">
+          <h3>Detailed Results</h3>
+        </div>
+
+        <div id="loadingIndicator" class="loading">
+          <p>Loading voting data...</p>
+        </div>
+
+        <div id="resultsContainer" style="display: none">
+          <div id="emptyState" class="empty-state" style="display: none">
+            <p>No votes have been cast yet. Be the first to vote!</p>
+            <a href="/" class="btn">Cast Your Vote</a>
+          </div>
+
+          <table id="resultsTable">
+            <thead>
+              <tr>
+                <th>Rank</th>
                 <th>Candidate</th>
                 <th>Votes</th>
-            </tr>
-        </thead>
-        <tbody id="resultsList"></tbody>
-    </table>
-    <script>
-        async function fetchResults() {
-            const response = await fetch('/results');
-            const results = await response.json();
-            const resultsList = document.getElementById('resultsList');
-            const voteCounts = {};
+                <th>Percentage</th>
+              </tr>
+            </thead>
+            <tbody id="resultsList"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-            results.forEach(block => {
-                const candidate = block.Vote;
-                if (voteCounts[candidate]) {
-                    voteCounts[candidate]++;
-                } else {
-                    voteCounts[candidate] = 1;
-                }
+    <footer>
+      <p>&copy; 2025 Secure Voting System</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script>
+      let pieChart = null;
+      let votingData = null;
+
+      async function fetchResults() {
+        const loadingIndicator = document.getElementById("loadingIndicator");
+        const resultsContainer = document.getElementById("resultsContainer");
+        const emptyState = document.getElementById("emptyState");
+        const resultsList = document.getElementById("resultsList");
+        const pieChartNoData = document.getElementById("pieChartNoData");
+        const barChartNoData = document.getElementById("barChartNoData");
+
+        try {
+          const response = await fetch("/results");
+          const results = await response.json();
+          votingData = results;
+
+          // Process the data
+          const voteCounts = {};
+          let totalVotes = 0;
+
+          results.forEach((block) => {
+            const candidate = block.Vote;
+            if (voteCounts[candidate]) {
+              voteCounts[candidate]++;
+            } else {
+              voteCounts[candidate] = 1;
+            }
+            totalVotes++;
+          });
+
+          // Convert to array and sort
+          const sortedResults = Object.entries(voteCounts)
+            .map(([candidate, votes]) => ({ candidate, votes }))
+            .sort((a, b) => b.votes - a.votes);
+
+          // Update statistics
+          document.getElementById("totalVotes").textContent = totalVotes;
+          document.getElementById("uniqueCandidates").textContent =
+            Object.keys(voteCounts).length;
+
+          if (sortedResults.length > 0) {
+            document.getElementById("leadingCandidate").textContent =
+              sortedResults[0].candidate;
+            if (results.length > 0) {
+              document.getElementById("recentVote").textContent =
+                results[results.length - 1].Vote;
+            }
+          }
+
+          // Display the data
+          loadingIndicator.style.display = "none";
+          resultsContainer.style.display = "block";
+
+          if (sortedResults.length === 0) {
+            emptyState.style.display = "block";
+            pieChartNoData.style.display = "block";
+            barChartNoData.style.display = "block";
+          } else {
+            // Create table rows
+            resultsList.innerHTML = "";
+
+            sortedResults.forEach((result, index) => {
+              const percentage = ((result.votes / totalVotes) * 100).toFixed(1);
+              const row = document.createElement("tr");
+
+              row.innerHTML = `
+                            <td>${index + 1}</td>
+                            <td>${result.candidate}</td>
+                            <td class="votes-column">${result.votes}</td>
+                            <td>
+                                <div class="percentage">${percentage}%</div>
+                                <div class="vote-bar" style="width: ${percentage}%;"></div>
+                            </td>
+                        `;
+
+              resultsList.appendChild(row);
             });
 
-            for (const candidate in voteCounts) {
-                const row = document.createElement('tr');
-                const candidateCell = document.createElement('td');
-                const votesCell = document.createElement('td');
-
-                candidateCell.textContent = candidate;
-                votesCell.textContent = voteCounts[candidate];
-
-                row.appendChild(candidateCell);
-                row.appendChild(votesCell);
-                resultsList.appendChild(row);
-            }
+            // Create charts
+            createPieChart(sortedResults);
+            createBarChart(sortedResults, totalVotes);
+          }
+        } catch (error) {
+          console.error("Error fetching results:", error);
+          loadingIndicator.style.display = "none";
+          emptyState.style.display = "block";
+          emptyState.innerHTML =
+            "<p>Error loading voting data. Please try again later.</p>";
         }
-        fetchResults();
+      }
+
+      function createPieChart(data) {
+        const ctx = document.getElementById("pieChart").getContext("2d");
+        const labels = data.map((item) => item.candidate);
+        const values = data.map((item) => item.votes);
+        const colors = getChartColors(data.length);
+
+        if (pieChart) {
+          pieChart.destroy();
+        }
+
+        pieChart = new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                data: values,
+                backgroundColor: colors,
+                borderColor: "white",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "right",
+              },
+            },
+          },
+        });
+
+        document.getElementById("pieChartNoData").style.display = "none";
+      }
+
+      function createBarChart(data, totalVotes) {
+        const container = document.getElementById("barChartContainer");
+        container.innerHTML = "";
+        document.getElementById("barChartNoData").style.display = "none";
+
+        data.forEach((item) => {
+          const percentage = ((item.votes / totalVotes) * 100).toFixed(1);
+          const barItem = document.createElement("div");
+          barItem.style.margin = "10px 0";
+
+          barItem.innerHTML = `
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>${item.candidate}</span>
+                                    <span>${percentage}% (${item.votes} votes)</span>
+                                </div>
+                                <div class="vote-bar" style="width: ${percentage}%;"></div>
+                            `;
+
+          container.appendChild(barItem);
+        });
+      }
+
+      function getChartColors(count) {
+        const colors = getComputedStyle(document.documentElement)
+          .getPropertyValue("--chart-colors")
+          .split(",");
+        return colors.slice(0, count).map((color) => color.trim());
+      }
+
+      // Initial fetch
+      fetchResults();
+
+      // Set up refresh button
+      document
+        .getElementById("refreshBtn")
+        .addEventListener("click", fetchResults);
     </script>
-</body>
+  </body>
 </html>

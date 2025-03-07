@@ -1,34 +1,261 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voting System</title>
-</head>
-<body>
-    <h1>Vote for Your Candidate</h1>
-    <form id="voteForm">
-        <input type="text" id="candidate" placeholder="Candidate Name" required>
-        <button type="submit">Vote</button>
-    </form>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secure Voting System</title>
+    <style>
+      :root {
+        --primary-color: #4285f4;
+        --primary-dark: #3367d6;
+        --secondary-color: #34a853;
+        --background-color: #f9f9f9;
+        --card-bg: #ffffff;
+        --text-color: #333333;
+        --error-color: #ea4335;
+        --success-color: #34a853;
+      }
+
+      body {
+        font-family: "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+          sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .container {
+        width: 90%;
+        max-width: 800px;
+        padding: 2rem;
+        margin: 2rem auto;
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
+      header {
+        width: 100%;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 1rem 0;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      nav {
+        display: flex;
+        justify-content: center;
+        padding: 0.5rem;
+        background-color: white;
+        border-bottom: 1px solid #eaeaea;
+        width: 100%;
+      }
+
+      nav a {
+        margin: 0 1rem;
+        text-decoration: none;
+        color: var(--primary-color);
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+
+      nav a:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+      }
+
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        color: var(--primary-color);
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin: 2rem 0;
+      }
+
+      .form-group {
+        width: 100%;
+        max-width: 400px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        text-align: left;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        transition: border-color 0.3s;
+      }
+
+      input[type="text"]:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+      }
+
+      button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-top: 1rem;
+      }
+
+      button:hover {
+        background-color: var(--primary-dark);
+      }
+
+      .notification {
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 4px;
+        text-align: center;
+        display: none;
+      }
+
+      .error {
+        background-color: rgba(234, 67, 53, 0.1);
+        color: var(--error-color);
+        border: 1px solid var(--error-color);
+      }
+
+      .success {
+        background-color: rgba(52, 168, 83, 0.1);
+        color: var(--success-color);
+        border: 1px solid var(--success-color);
+      }
+
+      footer {
+        margin-top: auto;
+        width: 100%;
+        background-color: var(--primary-color);
+        color: white;
+        text-align: center;
+        padding: 1rem 0;
+      }
+
+      .links {
+        margin-top: 2rem;
+      }
+
+      .links a {
+        display: inline-block;
+        margin: 0 1rem;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .links a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Secure Blockchain Voting System</h1>
+    </header>
+
+    <nav>
+      <a href="/">Vote</a>
+      <a href="/results">Results</a>
+      <a href="/dashboard">Dashboard</a>
+    </nav>
+
+    <div class="container">
+      <h2>Cast Your Vote</h2>
+      <p>
+        Enter the name of your preferred candidate below. Each vote is securely
+        recorded on our blockchain system.
+      </p>
+
+      <div id="notificationArea" class="notification"></div>
+
+      <form id="voteForm">
+        <div class="form-group">
+          <label for="candidate">Candidate Name:</label>
+          <input
+            type="text"
+            id="candidate"
+            placeholder="Enter candidate name"
+            required
+          />
+        </div>
+        <button type="submit">Submit Vote</button>
+      </form>
+
+      <div class="links">
+        <a href="/results">View All Votes</a>
+        <a href="/dashboard">View Results Dashboard</a>
+      </div>
+    </div>
+
+    <footer>
+      <p>&copy; 2025 Secure Voting System</p>
+    </footer>
+
     <script>
-        document.getElementById('voteForm').onsubmit = async ( event) => {
-            event.preventDefault();
-            const candidate = document.getElementById('candidate').value;
-            const response = await fetch('/vote', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ candidate }),
-            });
-            if (response.ok) {
-                alert('Vote submitted successfully!');
-                document.getElementById('candidate').value = '';
-            } else {
-                alert('Error submitting vote.');
-            }
-        };
+      document.getElementById("voteForm").onsubmit = async (event) => {
+        event.preventDefault();
+        const candidate = document.getElementById("candidate").value;
+        const notificationArea = document.getElementById("notificationArea");
+
+        try {
+          const response = await fetch("/vote", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ candidate }),
+          });
+
+          notificationArea.style.display = "block";
+
+          if (response.ok) {
+            notificationArea.className = "notification success";
+            notificationArea.textContent =
+              "Your vote has been successfully recorded! Thank you for participating.";
+            document.getElementById("candidate").value = "";
+
+            // Auto-hide the notification after 5 seconds
+            setTimeout(() => {
+              notificationArea.style.display = "none";
+            }, 5000);
+          } else {
+            notificationArea.className = "notification error";
+            notificationArea.textContent =
+              "Error submitting vote. Please try again.";
+          }
+        } catch (error) {
+          notificationArea.className = "notification error";
+          notificationArea.textContent =
+            "Network error. Please check your connection and try again.";
+          console.error("Error:", error);
+        }
+      };
     </script>
-</body>
+  </body>
 </html>
